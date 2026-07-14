@@ -8,7 +8,10 @@ import zipfile
 import shutil
 import uuid
 import tempfile
+import urllib.request
+import urllib.error
 from datetime import datetime
+from packaging.version import Version
 from PIL import Image
 from markupsafe import escape
 from flask import (
@@ -32,6 +35,9 @@ else:
 app = Flask(__name__, template_folder=template_folder, static_folder=static_folder)
 app.secret_key = os.environ.get('SECRET_KEY', os.urandom(32).hex())
 app.config['MAX_CONTENT_LENGTH'] = 1000 * 1024 * 1024
+
+APP_VERSION = '1.0.1'
+GITHUB_REPO = 'maaxim-one/auto-csv-gosveb'
 
 ALLOWED_ARCHIVE_EXT = {'zip'}
 ALLOWED_DOC_EXTS = {'.pdf', '.doc', '.docx', '.png', '.jpg', '.jpeg'}
@@ -586,6 +592,26 @@ def generate_csv(data, export_mode='school'):
         writer.writerow(filtered_row)
 
     return output.getvalue().encode('utf-8-sig')
+
+
+@app.route('/api/version')
+def api_version():
+    result = {'current': APP_VERSION, 'latest': None, 'url': None, 'update': False}
+    try:
+        api_url = f'https://api.github.com/repos/{GITHUB_REPO}/releases/latest'
+        req = urllib.request.Request(api_url, headers={'Accept': 'application/vnd.github.v3+json', 'User-Agent': 'auto-csv'})
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            data = json.loads(resp.read().decode())
+            tag = data.get('tag_name', '').lstrip('v')
+            result['latest'] = tag
+            result['url'] = data.get('html_url', '')
+            try:
+                result['update'] = Version(tag) > Version(APP_VERSION)
+            except Exception:
+                result['update'] = tag != APP_VERSION
+    except Exception as e:
+        logger.debug("Version check failed: %s", e)
+    return jsonify(result)
 
 
 if __name__ == '__main__':

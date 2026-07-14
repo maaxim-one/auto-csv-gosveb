@@ -211,6 +211,35 @@ h2 {
   color: #86efac;
 }
 
+.flash-info {
+  background-color: #eff6ff;
+  color: #1e40af;
+  border-left-color: #3b82f6;
+}
+
+.flash-info .flash-icon svg { stroke: #3b82f6; }
+.flash-info .flash-close svg { stroke: #1e40af; }
+
+.flash-info a {
+  color: #1d4ed8;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.flash-info a:hover {
+  color: #1e40af;
+}
+
+[data-theme="dark"] .flash-info {
+  background-color: #172554;
+  color: #93c5fd;
+}
+
+[data-theme="dark"] .flash-info a {
+  color: #60a5fa;
+}
+
 /* Upload form */
 .upload-form-block {
   display: flex;
