@@ -20,8 +20,8 @@
 
 1. Клонируйте репозиторий:
 ```bash
-git clone https://github.com/maaxim-one/auto_csv.git
-cd auto_csv
+git clone https://github.com/maaxim-one/auto-csv-gosveb.git
+cd auto-csv-gosveb
 ```
 
 2. Соберите и запустите контейнер:
@@ -35,8 +35,8 @@ docker compose up --build
 
 1. Клонируйте репозиторий:
 ```bash
-git clone https://github.com/maaxim-one/auto_csv.git
-cd auto_csv
+git clone https://github.com/maaxim-one/auto-csv-gosveb.git
+cd auto-csv-gosveb
 ```
 
 2. Установите зависимости:
