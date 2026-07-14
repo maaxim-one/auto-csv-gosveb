@@ -187,6 +187,22 @@ def upload():
         return redirect(url_for('index'))
 
 
+@app.route('/clear', methods=['POST'])
+def clear_session():
+    session_id = session.get('session_id')
+    if session_id:
+        session_path = _get_session_dir(session_id)
+        if os.path.isdir(session_path):
+            shutil.rmtree(session_path, ignore_errors=True)
+            logger.info("Очищена папка сессии: %s", session_path)
+    session.pop('session_id', None)
+
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return jsonify({'ok': True})
+
+    return redirect(url_for('index'))
+
+
 MAX_ZIP_SIZE = 90 * 1024 * 1024
 
 
