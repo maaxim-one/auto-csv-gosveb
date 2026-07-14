@@ -145,3 +145,5 @@ auto_csv/
 - Python 3.11+
 - Flask 3.0.3+
 - Pillow 10.0+
+- packaging 21.0+
+- gunicorn 21.0+ (для продакшена)
