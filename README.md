@@ -20,7 +20,7 @@
 
 1. Клонируйте репозиторий:
 ```bash
-git clone https://github.com/ваш-логин/auto_csv.git
+git clone https://github.com/maaxim-one/auto_csv.git
 cd auto_csv
 ```
 
@@ -35,7 +35,7 @@ docker compose up --build
 
 1. Клонируйте репозиторий:
 ```bash
-git clone https://github.com/ваш-логин/auto_csv.git
+git clone https://github.com/maaxim-one/auto_csv.git
 cd auto_csv
 ```
 
