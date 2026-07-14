@@ -5,11 +5,11 @@
   if (em) document.documentElement.setAttribute('data-export-mode', em);
 
   setTimeout(function() {
-    document.querySelectorAll('#flash-area .flash-message').forEach(function(el) {
+    document.querySelectorAll('#flash-area .flash-message:not(.flash-info)').forEach(function(el) {
       el.style.transition = 'opacity 0.3s, transform 0.3s';
       el.style.opacity = '0';
       el.style.transform = 'translateY(-8px)';
-      setTimeout(function() { el.remove(); }, 300);
+      setTimeout(function() { el.remove(); }, 3000);
     });
   }, 5000);
 })();
@@ -36,14 +36,6 @@ document.addEventListener('DOMContentLoaded', () => {
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>`;
       area.appendChild(div);
-      setTimeout(() => {
-        if (div.parentNode) {
-          div.style.transition = 'opacity 0.3s, transform 0.3s';
-          div.style.opacity = '0';
-          div.style.transform = 'translateY(-8px)';
-          setTimeout(() => div.remove(), 300);
-        }
-      }, 30000);
     }
   }).catch(() => {});
 
