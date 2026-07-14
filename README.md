@@ -51,9 +51,33 @@ python app.py
 
 4. Откройте в браузере: **http://localhost:5000**
 
-<!-- ## Готовый exe
+### Продакшен
 
-Скачайте готовый файл `auto_csv.exe` из папки `dist`. Для запуска дважды щёлкните по файлу и откройте **http://localhost:5000** в браузере. -->
+Для запуска в продакшене используйте gunicorn:
+
+1. Установите зависимости:
+```bash
+pip install -r requirements.txt
+```
+
+2. Задайте секретный ключ:
+```bash
+export SECRET_KEY=ваш_надежный_ключ
+```
+
+3. Запустите gunicorn:
+```bash
+gunicorn --bind 0.0.0.0:5000 --workers 2 --timeout 120 app:app
+```
+
+**Через Docker Compose:**
+```bash
+SECRET_KEY=ваш_ключ docker compose up -d
+```
+
+## Готовый exe
+
+Скачайте готовый файл `app.exe` из папки `dist`. Для запуска дважды щёлкните по файлу и откройте **http://localhost:5000** в браузере.
 
 ## Структура архива
 
