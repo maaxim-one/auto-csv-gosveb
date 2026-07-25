@@ -1,2 +1,2 @@
-python -m PyInstaller --onefile --add-data "templates:templates" --add-data "static:static" app.py
+py -m PyInstaller wsgi.spec --noconfirm
 pause

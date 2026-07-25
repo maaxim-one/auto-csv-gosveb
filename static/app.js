@@ -114,6 +114,67 @@ document.addEventListener('DOMContentLoaded', () => {
   restoreExportMode();
   bindExportModeSave();
 
+  function setDownloadEnabled(enabled) {
+    const btn = document.getElementById('download-btn');
+    if (!btn) return;
+    btn.disabled = !enabled;
+    btn.classList.toggle('disabled', !enabled);
+  }
+
+  function pollExcelConversion(jobId) {
+    setDownloadEnabled(false);
+    const container = document.getElementById('data-section');
+    let bar = document.getElementById('excel-progress-bar');
+    if (!bar) {
+      bar = document.createElement('div');
+      bar.id = 'excel-progress-bar';
+      bar.className = 'excel-progress-container animate-in';
+      container.prepend(bar);
+    }
+
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch('/api/convert_status/' + jobId);
+        const data = await res.json();
+        const manifest = data.manifest || [];
+        const total = manifest.length;
+        const doneCount = manifest.filter(f => f.status === 'done').length;
+        const pct = total > 0 ? Math.round((doneCount / total) * 100) : 0;
+        const currentFile = manifest.find(f => f.status === 'converting');
+
+        bar.innerHTML =
+          '<div class="excel-progress-text">' +
+            'Конвертация файлов: <strong>' + doneCount + '</strong> из ' + total +
+            (currentFile ? ' — <em>' + currentFile.name + '</em>' : '') +
+          '</div>' +
+          '<div class="excel-progress-track">' +
+            '<div class="excel-progress-fill" style="width:' + pct + '%"></div>' +
+          '</div>';
+
+        manifest.forEach((f, i) => {
+          var cell = container.querySelector('.convert-col[data-idx="' + i + '"]');
+          if (!cell) return;
+          var arrow = f.from !== f.to ? f.from + ' \u2192 ' + f.to : f.from;
+          cell.innerHTML = '<span class="convert-badge convert-badge-' + f.status + '">' + arrow + '</span>';
+          var tr = cell.closest('tr');
+          if (tr) tr.setAttribute('data-convert', f.status);
+        });
+
+        if (data.status === 'done') {
+          clearInterval(interval);
+          setTimeout(function() { bar.remove(); }, 1500);
+          setDownloadEnabled(true);
+        } else if (data.status === 'error') {
+          clearInterval(interval);
+          bar.remove();
+          setDownloadEnabled(true);
+          showFlash([{category: 'error', text: 'Ошибка конвертации: ' + (data.error || 'Неизвестная ошибка')}]);
+        }
+      } catch (e) {
+      }
+    }, 2000);
+  }
+
   const uploadForm = document.getElementById('upload-form');
   if (uploadForm) {
     uploadForm.addEventListener('submit', async (e) => {
@@ -125,6 +186,8 @@ document.addEventListener('DOMContentLoaded', () => {
       setLoading(btn, true);
       const fd = new FormData();
       fd.append('archive', fileInput.files[0]);
+      const exportSelect = document.getElementById('export_mode');
+      if (exportSelect) fd.append('export_mode', exportSelect.value);
 
       try {
         const res = await fetch('/upload', {
@@ -136,6 +199,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (data.ok) {
           showFlash(data.messages || []);
           updateDataSection(data.preview_html, data.total_count, data.export_mode, data.categories);
+          if (data.excel_job_id && data.manifest && data.manifest.some(f => f.status !== 'done')) {
+            pollExcelConversion(data.excel_job_id);
+          }
         } else {
           showFlash(data.messages || [{category:'error', text:'Ошибка загрузки'}]);
         }
@@ -225,7 +291,7 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
         <p class="text-muted">Редактируйте поля в таблице. При скачивании правки сохранятся в CSV.</p>
         <form id="download-form" action="/download_zip" method="post">
-          <div style="margin-bottom:16px; display:flex; align-items:center; gap:12px;">
+          <div class="export-controls">
             <span class="label-inline">Режим экспорта:</span>
             <select name="export_mode" id="export_mode">
               <option value="school" ${exportMode === 'school' ? 'selected' : ''}>Школа</option>
@@ -349,4 +415,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   rebindCategoryFilter();
   rebindClearBtn();
+
+  const ds = document.getElementById('data-section');
+  if (ds && ds.dataset.converting === 'true' && ds.dataset.excelJob) {
+    pollExcelConversion(ds.dataset.excelJob);
+  }
 });

@@ -111,7 +111,7 @@
             <span class="file-name">{{ item.filename }}</span>
             <span class="file-size">{{ item.size_mb }} МБ</span>
           </div>
-          <a href="{{ url_for('serve_download', filename=item.filename) }}" class="btn btn-primary btn-icon download-btn" title="Скачать">
+          <a href="{{ url_for('download.serve_download', filename=item.filename) }}" class="btn btn-primary btn-icon download-btn" title="Скачать">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
               <polyline points="7 10 12 15 17 10"/>
@@ -123,7 +123,7 @@
     </div>
 
     <div class="status-actions">
-      <a href="{{ url_for('index') }}" class="btn btn-secondary">На главную</a>
+      <a href="{{ url_for('page.index') }}" class="btn btn-secondary">На главную</a>
     </div>
   </div>
   <script>

@@ -5,12 +5,14 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY app.py .
+COPY app ./app
+COPY routes ./routes
 COPY templates ./templates
 COPY static ./static
+COPY wsgi.py .
 
 RUN useradd --create-home appuser
-RUN mkdir -p /app/temp_data && chown -R appuser:appuser /app
+RUN mkdir -p /app/storage && chown -R appuser:appuser /app
 USER appuser
 
 EXPOSE 5000
@@ -18,4 +20,4 @@ EXPOSE 5000
 ENV FLASK_DEBUG=0
 ENV SECRET_KEY=change-me-in-production
 
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "2", "--timeout", "120", "app:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "2", "--timeout", "300", "wsgi:app"]

@@ -2,7 +2,7 @@
 
 
 a = Analysis(
-    ['app.py'],
+    ['wsgi.py'],
     pathex=[],
     binaries=[],
     datas=[('templates', 'templates'), ('static', 'static')],
@@ -22,7 +22,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='app',
+    name='wsgi',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,

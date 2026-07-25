@@ -7,8 +7,8 @@ services:
       - FLASK_DEBUG=0
       - SECRET_KEY=${SECRET_KEY:-change-me-in-production}
     volumes:
-      - temp_data:/app/temp_data
+      - storage:/app/storage
     restart: unless-stopped
 
 volumes:
-  temp_data:
+  storage:

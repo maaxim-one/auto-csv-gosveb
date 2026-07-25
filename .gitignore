@@ -1,4 +1,5 @@
 __pycache__/
+.pytest_cache
 *.pyc
 *.pyo
 dist/
@@ -6,5 +7,6 @@ build/
 *.spec.bak
 *.egg-info/
 .env
-temp_data/*
-!temp_data/.gitkeep
+storage/*
+!storage/.gitkeep
+o.txt

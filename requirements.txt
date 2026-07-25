@@ -2,3 +2,5 @@ Flask==3.0.3
 Pillow>=10.0.0
 gunicorn>=21.0.0
 packaging>=21.0
+ilovepdf>=1.0.0
+pywin32>=306; sys_platform == "win32"
