@@ -8,7 +8,16 @@ from app.services.csv import (
     render_table_preview,
     parse_zip_to_csv_rows,
     get_category_from_path,
+    _expand_abbreviation,
 )
+
+
+def test_expand_abbreviation():
+    assert _expand_abbreviation('пфхд') == 'План финансово-хозяйственной деятельности'
+    assert _expand_abbreviation('ПФХД') == 'План финансово-хозяйственной деятельности'
+    assert _expand_abbreviation('Пфхд 2025') == 'План финансово-хозяйственной деятельности 2025'
+    assert _expand_abbreviation('смета пфхд') == 'смета План финансово-хозяйственной деятельности'
+    assert _expand_abbreviation('отчёт') == 'отчёт'
 
 
 def _make_sample_data(export_mode='school'):
@@ -157,8 +166,8 @@ def test_parse_zip_to_csv_rows(app):
             rows, skipped = parse_zip_to_csv_rows(z)
 
         filenames = [r['ArchivePath'] for r in rows]
-        assert any('doc1.pdf' in f for f in filenames)
-        assert any('doc2.docx' in f for f in filenames)
+        assert any('Doc1.pdf' in f for f in filenames)
+        assert any('Doc2.docx' in f for f in filenames)
         assert any('Image.pdf' in f for f in filenames)
         assert 'readme.txt' in skipped
         assert len(rows) == 3

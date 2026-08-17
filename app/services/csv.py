@@ -1,6 +1,7 @@
 import os
 import csv
 import io
+import re
 import logging
 from datetime import datetime
 from markupsafe import escape
@@ -9,6 +10,12 @@ from app.services.image import convert_image_bytes_to_pdf
 from app.services.excel import file_conversion_entry
 
 logger = logging.getLogger(__name__)
+
+_PFX_D_PHRASE = 'План финансово-хозяйственной деятельности'
+
+
+def _expand_abbreviation(name: str) -> str:
+    return re.sub(r'пфхд', _PFX_D_PHRASE, name, flags=re.IGNORECASE)
 
 
 def get_category_from_path(path: str) -> str:
@@ -36,9 +43,11 @@ def parse_zip_to_csv_rows(zip_file):
             continue
 
         file_name_only = os.path.basename(filename_full)
-        name_no_ext = os.path.splitext(file_name_only)[0]
+        name_no_ext, ext = os.path.splitext(file_name_only)
         if name_no_ext:
+            name_no_ext = _expand_abbreviation(name_no_ext)
             name_no_ext = name_no_ext[0].upper() + name_no_ext[1:]
+            file_name_only = name_no_ext + ext
         category = get_category_from_path(info.filename)
 
         if is_image(file_name_only):
