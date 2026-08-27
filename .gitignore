@@ -9,4 +9,5 @@ build/
 .env
 storage/*
 !storage/.gitkeep
-o.txt
+.flask_secret
+DESIGN.md

@@ -2,6 +2,7 @@ import os
 import shutil
 import logging
 from datetime import datetime
+from flask import current_app, abort
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +17,15 @@ def get_session_dir(session_id: str) -> str:
 
 
 def sanitize_filename(filename: str) -> str:
-    return os.path.basename(filename)
+    base = os.path.basename(filename)
+    resolved = os.path.realpath(os.path.join(
+        current_app.config['STORAGE_DIR'], base
+    ))
+    if not resolved.startswith(os.path.realpath(current_app.config['STORAGE_DIR'])):
+            abort(403, 'Forbidden')
+    if os.path.islink(resolved):
+        abort(403, 'Forbidden')
+    return base
 
 
 def is_safe_path(base: str, target: str) -> bool:
@@ -44,9 +53,8 @@ def is_excel(filename: str) -> bool:
     return ext.lower() in exts
 
 
-def truncate_filename(filename: str) -> str:
+def truncate_filename(filename: str, max_bytes: int = 200) -> str:
     from flask import current_app
-    max_bytes = current_app.config['MAX_FILENAME_BYTES']
     name, ext = os.path.splitext(filename)
     if len(filename.encode('utf-8')) <= max_bytes:
         return filename
@@ -73,6 +81,13 @@ def cleanup_stale_temp_files(max_age_hours: int = 24):
     now = datetime.now().timestamp()
     for filename in os.listdir(storage):
         filepath = os.path.join(storage, filename)
+        if os.path.islink(filepath):
+            try:
+                os.unlink(filepath)
+                logger.info("Удалена символическая ссылка: %s", filepath)
+            except OSError:
+                pass
+            continue
         try:
             age_hours = (now - os.path.getmtime(filepath)) / 3600
             if age_hours > max_age_hours:

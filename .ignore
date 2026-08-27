@@ -1,0 +1,12 @@
+/node_modules/
+/build/
+/dist/
+/venv/
+/.git/
+**/tmp/**
+**/cache/**
+*.log
+/__pycache__/
+**/__pycache__/**
+/.pytest_cache/
+/storage/

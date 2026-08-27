@@ -4,7 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CSV генератор из ZIP</title>
+  {% if session.get('_csrf_token') is defined %}
+  <meta name="csrf-token" content="{{ session.get('_csrf_token') }}">
+  {% endif %}
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <meta name="csrf-token" content="{{ session.get('_csrf_token', '') }}">
 </head>
 <body>
   <div class="app-badge">
@@ -66,23 +70,25 @@
         <span class="card-title">Загрузка архива</span>
       </div>
       <form id="upload-form" action="/upload" method="post" enctype="multipart/form-data" class="upload-form-block">
+        <input type="hidden" name="_csrf_token" value="{{ session.get('_csrf_token', '') }}">
         <label>ZIP архив:</label>
         <input type="file" name="archive" accept=".zip" required id="file-input">
         <button type="submit" class="btn btn-primary" id="upload-btn">Обработать</button>
       </form>
     </div>
 
-    <div id="data-section" data-converting="{{ 'true' if converting else 'false' }}" data-excel-job="{{ excel_job_id or '' }}">
+    <div id="data-section" data-converting="{{ 'true' if converting else 'false' }}" data-excel-job="{{ excel_job_id or '' }}" data-deferred="{{ 'true' if deferred else 'false' }}" data-deferred-jobs="{{ 'true' if deferred_jobs else 'false' }}">
       {% if preview_html %}
         <div class="card animate-in animate-in-delay-1">
           <div class="card-header">
             <span class="card-title">Данные</span>
-            <span class="stats-bar" id="stats-bar">Файлов: {{ total_count }}</span>
+              <span class="stats-bar" id="stats-bar">Файлов: {{ total_count }}</span>
           </div>
 
           <p class="text-muted">Редактируйте поля в таблице. При скачивании правки сохранятся в CSV.</p>
 
           <form id="download-form" action="/download_zip" method="post">
+            <input type="hidden" name="_csrf_token" value="{{ session.get('_csrf_token', '') }}">
             <div class="export-controls">
               <span class="label-inline">Режим экспорта:</span>
               <select name="export_mode" id="export_mode">

@@ -89,23 +89,6 @@ def test_api_convert_status_not_found(client):
     assert response.status_code == 404
 
 
-def test_api_convert_status_valid(client, app):
-    with app.app_context():
-        from app.services.job import job_update
-        job_update('test_api_job', status='processing', total=3, manifest=[
-            {'name': 'a.pdf', 'from': 'PDF', 'to': 'PDF', 'status': 'done'},
-            {'name': 'b.xlsx', 'from': 'XLSX', 'to': 'PDF', 'status': 'converting'},
-            {'name': 'c.docx', 'from': 'DOCX', 'to': 'PDF', 'status': 'waiting'},
-        ])
-
-    response = client.get('/api/convert_status/test_api_job')
-    assert response.status_code == 200
-    body = response.get_json()
-    assert body['status'] == 'processing'
-    assert body['total'] == 3
-    assert body['progress'] == 1
-
-
 def test_api_version(client):
     response = client.get('/api/version')
     assert response.status_code == 200

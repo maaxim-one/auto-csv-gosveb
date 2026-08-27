@@ -4,9 +4,9 @@ import json
 import uuid
 import zipfile
 import logging
+from datetime import datetime
 from flask import Blueprint, render_template, request, session, redirect, url_for, flash, send_file, abort, jsonify
 from app.utils import get_session_dir, sanitize_filename, is_safe_path, is_image, cleanup_session_directory
-from app.services.job import job_read
 from app.services.csv import generate_csv, apply_form_changes
 from app.config import Config
 
@@ -25,26 +25,36 @@ def _get_resolved_path(row, session_path):
     return file_path_on_disk
 
 
-def _build_single_zip(rows_chunk, session_path, export_mode, used_names=None):
-    if used_names is None:
-        used_names = set()
-
+def _build_zip_file(rows_chunk, session_path, export_mode, used_names):
     csv_bytes = generate_csv(rows_chunk, export_mode)
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, 'w', zipfile.ZIP_DEFLATED) as zf:
-        zf.writestr('component_import.csv', csv_bytes)
+        csv_info = zipfile.ZipInfo('component_import.csv')
+        csv_info.compress_type = zipfile.ZIP_DEFLATED
+        csv_info.external_attr = 0o644 << 16
+        zf.writestr(csv_info, csv_bytes)
+
+        seen = set()
         for row in rows_chunk:
+            arcname = os.path.basename(row.get('ArchivePath', row['File']))
             file_path_on_disk = _get_resolved_path(row, session_path)
-            if not is_safe_path(session_path, file_path_on_disk):
-                continue
             if not os.path.isfile(file_path_on_disk):
                 continue
-            final_arcname = sanitize_filename(row['File'])
-            if final_arcname in used_names or final_arcname in zf.namelist():
-                base, ext = os.path.splitext(final_arcname)
-                final_arcname = f"{base}_dup{len(used_names)}{ext}"
-            used_names.add(final_arcname)
-            zf.write(file_path_on_disk, arcname=final_arcname)
+            if arcname in seen:
+                continue
+            if arcname in used_names:
+                final_arcname = f"{arcname}_dup{len(used_names)}{os.path.splitext(arcname)[1]}"
+            else:
+                final_arcname = arcname
+            used_names.add(os.path.basename(final_arcname))
+            seen.add(arcname)
+            with open(file_path_on_disk, 'rb') as f:
+                file_data = f.read()
+            zinfo = zipfile.ZipInfo(filename=final_arcname)
+            zinfo.compress_type = zipfile.ZIP_DEFLATED
+            zinfo.external_attr = 0o644 << 16
+            zinfo.flag_bits |= 0x800
+            zf.writestr(zinfo, file_data)
     buf.seek(0)
     return buf
 
@@ -81,15 +91,6 @@ def download_zip():
     if not session_id:
         flash('Сначала загрузите ZIP архив', 'error')
         return redirect(url_for('page.index'))
-
-    excel_job_id = session.get('excel_job_id')
-    if excel_job_id:
-        job = job_read(excel_job_id)
-        if job and job.get('status') == 'processing':
-            flash('Подождите завершения конвертации Excel в PDF', 'warning')
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return jsonify({'ok': False, 'error': 'converting'})
-            return redirect(url_for('page.index'))
 
     session_path = get_session_dir(session_id)
     if not os.path.isdir(session_path):
@@ -128,7 +129,7 @@ def download_zip():
     )
 
     if total_uncompressed <= max_zip_size:
-        zip_buf = _build_single_zip(updated_data, session_path, export_mode, used_names)
+        zip_buf = _build_zip_file(updated_data, session_path, export_mode, used_names)
         filename = f"export_{download_id}.zip"
         filepath = os.path.join(storage_dir, filename)
         with open(filepath, 'wb') as f:
@@ -138,7 +139,7 @@ def download_zip():
         chunks = _split_rows_by_size(updated_data, session_path, max_zip_size)
         logger.info("Файл разбит на %d частей", len(chunks))
         for idx, chunk in enumerate(chunks, 1):
-            zip_buf = _build_single_zip(chunk, session_path, export_mode, used_names)
+            zip_buf = _build_zip_file(chunk, session_path, export_mode, used_names)
             filename = f"export_{download_id}_part{idx}.zip"
             filepath = os.path.join(storage_dir, filename)
             with open(filepath, 'wb') as f:

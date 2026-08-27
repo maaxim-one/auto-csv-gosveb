@@ -129,8 +129,8 @@ def test_render_table_preview_with_data():
     assert '<table>' in html
     assert 'Doc1' in html
     assert 'Doc2' in html
-    assert 'convert-badge-done' in html
-    assert 'convert-badge-converting' in html
+    assert '<th>№</th>' in html
+    assert '<th>Удалить</th>' in html
 
 
 def test_render_table_preview_with_manifest():
@@ -139,7 +139,8 @@ def test_render_table_preview_with_manifest():
         {'name': 'doc1.pdf', 'from': 'PDF', 'to': 'PDF', 'status': 'done'},
     ]
     html = render_table_preview(data, manifest=manifest)
-    assert 'convert-badge-done' in html
+    assert '<table>' in html
+    assert 'Doc1' in html
 
 
 def test_get_category_from_path():

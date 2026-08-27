@@ -15,6 +15,8 @@
 })();
 
 document.addEventListener('DOMContentLoaded', () => {
+  const csrfToken = document.querySelector('meta[name="csrf-token"]');
+  window.CSRF_TOKEN = csrfToken ? csrfToken.getAttribute('content') : '';
   const toggle = document.getElementById('theme-toggle');
   function applyTheme(dark) {
     document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
@@ -164,6 +166,8 @@ document.addEventListener('DOMContentLoaded', () => {
           clearInterval(interval);
           setTimeout(function() { bar.remove(); }, 1500);
           setDownloadEnabled(true);
+          // Reload page to reflect changes
+          setTimeout(function() { location.reload(); }, 2000);
         } else if (data.status === 'error') {
           clearInterval(interval);
           bar.remove();
@@ -189,17 +193,17 @@ document.addEventListener('DOMContentLoaded', () => {
       const exportSelect = document.getElementById('export_mode');
       if (exportSelect) fd.append('export_mode', exportSelect.value);
 
-      try {
+       try {
         const res = await fetch('/upload', {
           method: 'POST',
-          headers: { 'X-Requested-With': 'XMLHttpRequest' },
+          headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-Token': window.CSRF_TOKEN || '' },
           body: fd
         });
         const data = await res.json();
         if (data.ok) {
           showFlash(data.messages || []);
           updateDataSection(data.preview_html, data.total_count, data.export_mode, data.categories);
-          if (data.excel_job_id && data.manifest && data.manifest.some(f => f.status !== 'done')) {
+          if (data.excel_job_id && data.manifest && data.manifest.some(f => f.status === 'converting')) {
             pollExcelConversion(data.excel_job_id);
           }
         } else {

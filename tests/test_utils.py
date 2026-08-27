@@ -8,12 +8,13 @@ from app.utils import (
 from app.services.csv import get_category_from_path
 
 
-def test_sanitize_filename():
-    assert sanitize_filename('foo.pdf') == 'foo.pdf'
-    assert sanitize_filename('../../../etc/passwd') == 'passwd'
-    assert sanitize_filename('C:\\Windows\\file.txt') == 'file.txt'
-    assert sanitize_filename('just_a_name') == 'just_a_name'
-    assert sanitize_filename('path/sub/file.pdf') == 'file.pdf'
+def test_sanitize_filename(app):
+    with app.app_context():
+        assert sanitize_filename('foo.pdf') == 'foo.pdf'
+        assert sanitize_filename('../../../etc/passwd') == 'passwd'
+        assert sanitize_filename('C:\\Windows\\file.txt') == 'file.txt'
+        assert sanitize_filename('just_a_name') == 'just_a_name'
+        assert sanitize_filename('path/sub/file.pdf') == 'file.pdf'
 
 
 def test_is_safe_path():
