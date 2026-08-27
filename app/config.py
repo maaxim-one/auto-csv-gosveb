@@ -31,7 +31,7 @@ class Config:
         TEMPLATE_FOLDER = os.path.abspath('templates')
         STATIC_FOLDER = os.path.abspath('static')
 
-    APP_VERSION = '1.1.0'
+    APP_VERSION = '1.1.2'
     GITHUB_REPO = 'maaxim-one/auto-csv-gosveb'
 
     ALLOWED_ARCHIVE_EXT = {'zip'}
