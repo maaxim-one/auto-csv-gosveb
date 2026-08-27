@@ -23,19 +23,13 @@
 ```bash
 # Обязательно: секретный ключ Flask
 SECRET_KEY=ваш_надежный_ключ
+```
 
 ### Описание переменных
 
 | Переменная | Обязательность | Описание |
 |---|---|---|
 | `SECRET_KEY` | **Обязательно** | Секретный ключ Flask для сессий. Генерируется через `python -c "import secrets; print(secrets.token_hex(32))"` |
-
-### Как получить ключи iLovePDF
-
-1. Перейдите на https://developer.ilovepdf.com/signup
-2. Зарегистрируйте аккаунт (бесплатно)
-3. В консоли разработчика скопируйте **Project public key** и **Secret key**
-4. Добавьте их в `.env` как `ILOVEPDF_PUBLIC_KEY` и `ILOVEPDF_SECRET_KEY`
 
 ## Запуск
 
