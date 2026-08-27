@@ -44,8 +44,6 @@ cd auto-csv-gosveb
 2. Создайте файл `.env` (см. раздел "Переменные окружения" выше):
 ```bash
 SECRET_KEY=ваш_надежный_ключ
-ILOVEPDF_PUBLIC_KEY=project_public_xxxxxxxxxxxxxxxx
-ILOVEPDF_SECRET_KEY=secret_xxxxxxxxxxxxxxxx
 ```
 
 3. Соберите и запустите контейнер:
@@ -71,8 +69,6 @@ pip install -r requirements.txt
 3. Создайте файл `.env` или задайте переменные вручную:
 ```bash
 export SECRET_KEY=ваш_надежный_ключ
-export ILOVEPDF_PUBLIC_KEY=project_public_xxxxxxxxxxxxxxxx
-export ILOVEPDF_SECRET_KEY=secret_xxxxxxxxxxxxxxxx
 ```
 
 4. Запустите приложение:
@@ -94,8 +90,6 @@ pip install -r requirements.txt
 2. Создайте файл `.env` со всеми переменными (или экспортируйте):
 ```bash
 export SECRET_KEY=ваш_надежный_ключ
-export ILOVEPDF_PUBLIC_KEY=project_public_xxxxxxxxxxxxxxxx
-export ILOVEPDF_SECRET_KEY=secret_xxxxxxxxxxxxxxxx
 ```
 
 3. Запустите gunicorn:
@@ -112,8 +106,6 @@ docker compose up -d
 ```yaml
 environment:
   - SECRET_KEY=ваш_ключ
-  - ILOVEPDF_PUBLIC_KEY=project_public_xxx
-  - ILOVEPDF_SECRET_KEY=secret_xxx
 ```
 
 Или используйте файл `.env` в корне проекта — Docker Compose подхватит его автоматически.
