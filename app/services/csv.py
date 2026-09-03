@@ -5,7 +5,7 @@ import re
 import logging
 from datetime import datetime
 from markupsafe import escape
-from app.utils import is_image, truncate_filename, is_safe_path
+from app.utils import is_image, truncate_filename, is_safe_path, normalize_spaces
 from app.services.image import convert_image_bytes_to_pdf
 
 logger = logging.getLogger(__name__)
@@ -48,6 +48,7 @@ def parse_zip_to_csv_rows(zip_file, export_mode='school'):
         name_no_ext, ext = os.path.splitext(file_name_only)
         if name_no_ext:
             name_no_ext = _expand_abbreviation(name_no_ext)
+            name_no_ext = normalize_spaces(name_no_ext)
             name_no_ext = name_no_ext[0].upper() + name_no_ext[1:]
             file_name_only = name_no_ext + ext
         category = get_category_from_path(info.filename)
@@ -82,8 +83,8 @@ def parse_zip_to_csv_rows(zip_file, export_mode='school'):
             }
         else:
             existing = tmp_map[key]
-            if category not in existing['Category'].split(','):
-                existing['Category'] = existing['Category'] + ',' + category
+            if category not in existing['Category'].split('|'):
+                existing['Category'] = existing['Category'] + '|' + category
 
     rows = list(tmp_map.values())
 

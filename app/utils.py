@@ -1,4 +1,5 @@
 import os
+import re
 import shutil
 import logging
 from datetime import datetime
@@ -16,6 +17,10 @@ def get_session_dir(session_id: str) -> str:
     return os.path.join(get_storage_dir(), session_id)
 
 
+def normalize_spaces(name: str) -> str:
+    return re.sub(r'\s+', ' ', name)
+
+
 def sanitize_filename(filename: str) -> str:
     base = os.path.basename(filename)
     resolved = os.path.realpath(os.path.join(
@@ -25,6 +30,7 @@ def sanitize_filename(filename: str) -> str:
             abort(403, 'Forbidden')
     if os.path.islink(resolved):
         abort(403, 'Forbidden')
+    base = normalize_spaces(base)
     return base
 
 
